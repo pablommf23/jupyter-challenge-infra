@@ -1,0 +1,68 @@
+name: challenge-infra-plan
+
+on:
+  push:
+    branches:
+      - infra-plan
+jobs:  
+  Development_Plan:
+    name: Development Terraform plan
+    environment: development
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: checkout
+      uses: actions/checkout@v3
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.1.2
+
+    - name: Authenticate to Google Cloud
+      id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+    - name: Initialize Terraform
+      run: |
+        cd environments/development
+        terraform init -input=false
+        
+    - name: Plan Terraform
+      run: |
+        cd environments/development
+        terraform plan -input=false
+
+  Production_Plan:
+      name: Production Terraform plan
+      environment: production
+      runs-on: ubuntu-latest
+
+      steps:
+
+      - name: checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.2
+
+    - name: Authenticate to Google Cloud
+      id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+      - name: Initialize Terraform
+        run: |
+          cd environments/production
+          terraform init -input=false
+          
+      - name: Plan Terraform
+        run: |
+          cd environments/production
+          terraform plan -input=false
