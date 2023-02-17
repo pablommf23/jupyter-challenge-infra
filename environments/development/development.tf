@@ -75,7 +75,7 @@ module "gke" {
       service_account   = "cicd-github-actions@latam-challenge.iam.gserviceaccount.com"
       preemptible       = false
       max_pods_per_node = 8
-      machine_type = "c2-standard-4"
+      #machine_type = "c2-standard-4"
     },
   ]
 
