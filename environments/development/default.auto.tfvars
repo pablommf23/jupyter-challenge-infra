@@ -1,8 +1,3 @@
 location="us-central1"
 project_id="latam-challenge"
 cluster_name_suffix="dev"
-network=""
-subnetwork=""
-ip_range_pods=""
-ip_range_services=""
-compute_engine_service_account=""
