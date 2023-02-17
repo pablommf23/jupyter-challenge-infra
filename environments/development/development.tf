@@ -13,16 +13,16 @@ data "google_client_config" "default" {}
 resource "google_compute_subnetwork" "custom" {
   name          = "development-subnetwork"
   ip_cidr_range = "10.2.0.0/16"
-  region        = "us-central1"
+  region        = var.region
   network       = google_compute_network.custom.id
   secondary_ip_range {
     range_name    = "services-range"
-    ip_cidr_range = "192.168.1.0/24"
+    ip_cidr_range = "10.0.1.0/24"
   }
 
   secondary_ip_range {
     range_name    = "pod-ranges"
-    ip_cidr_range = "192.168.64.0/22"
+    ip_cidr_range = "10.0.64.0/22"
   }
 }
 
@@ -49,11 +49,12 @@ module "gke" {
   name                      = "${local.cluster_type}-${var.cluster_name_suffix}"
   regional                  = true
   region                    = var.region
-  network                   = google_compute_network.custom.id
-  subnetwork                = google_compute_subnetwork.custom.id
-  ip_range_pods             = google_compute_subnetwork.custom.secondary_ip_range[0].ip_cidr_range
-  ip_range_services         = google_compute_subnetwork.custom.secondary_ip_range[1].ip_cidr_range
-  create_service_account    = true
+  network                   = google_compute_network.custom.name
+  subnetwork                = google_compute_subnetwork.custom.name
+  ip_range_pods             = google_compute_subnetwork.custom.secondary_ip_range[0].range_name
+  ip_range_services         = google_compute_subnetwork.custom.secondary_ip_range[1].range_name
+  create_service_account    = false
+  service_account   = "cicd-github-actions@latam-challenge.iam.gserviceaccount.com"
   enable_private_endpoint   = true
   enable_private_nodes      = true
   master_ipv4_cidr_block    = "172.16.0.0/28"
