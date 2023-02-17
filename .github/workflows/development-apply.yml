@@ -1,0 +1,59 @@
+name: development-apply
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  Development_Apply:
+    name: Development Terraform Apply
+    environment: development
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: cancel previous runs
+      uses: styfle/cancel-workflow-action@0.5.0
+      with:
+        access_token: ${{ github.token }}
+
+    - name: checkout
+      uses: actions/checkout@v3
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.1.2
+
+    - name: Authenticate to Google Cloud
+      id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+
+    - name: Initialize Terraform
+      run: |
+        cd environments/development
+        terraform init -input=false
+        
+    - name: Plan Terraform
+      run: |
+        cd environments/development
+        terraform plan -input=false
+
+    - name: Apply Terraform
+      run: |
+        cd environments/development
+        terraform apply -input=false -auto-approve
+
+
+    # - name: Slack Notification
+    #   uses: 8398a7/action-slack@v3
+    #   with:
+    #     job_name: Infra Development Deployment
+    #     status: ${{ job.status }}
+    #     fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+    #   env:
+    #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    #   if: always()
